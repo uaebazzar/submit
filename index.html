@@ -3,203 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luncher | User Insights</title>
+    <title>Luncher | Evolutionary Feedback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #ffffff;
-            --text-primary: #000000;
-            --text-secondary: #6b7280;
-            --border-soft: #f3f4f6;
-            --border-active: #000000;
-            --radius-lg: 20px;
-            --radius-sm: 12px;
-            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --bg: #000000;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #777777;
+            --accent: #ffffff;
+            --border: rgba(255, 255, 255, 0.1);
+            --radius: 24px;
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* Enforce absolute stability */
+        /* Stability & Tap Suppression */
         html, body {
             overflow: hidden;
             height: 100%;
             width: 100%;
             margin: 0;
-            padding: 0;
-            position: fixed;
-            background-color: var(--bg);
-            color: var(--text-primary);
-            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
-            touch-action: none;
-        }
-
-        body {
+            -webkit-tap-highlight-color: transparent; /* Removes blue highlight */
             display: flex;
             justify-content: center;
             align-items: center;
+            position: fixed;
         }
 
-        .container {
+        /* Subtle Noise Grain Overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grains.imgix.net/noise.png');
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .main-stage {
+            z-index: 2;
             width: 100%;
-            max-width: 380px;
-            padding: 24px;
+            max-width: 400px;
+            padding: 32px;
             box-sizing: border-box;
+            filter: blur(8px);
+            opacity: 0;
+            transform: translateY(10px);
+            animation: reveal 1s var(--ease-out) forwards;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes reveal {
+            to { filter: blur(0); opacity: 1; transform: translateY(0); }
         }
 
         .hidden { display: none !important; }
 
         /* Typography */
         h1 {
-            font-size: 34px;
-            font-weight: 800;
-            margin: 0 0 12px 0;
-            letter-spacing: -1.5px;
-            line-height: 1;
+            font-size: 48px;
+            font-weight: 900;
+            line-height: 0.85;
+            letter-spacing: -3px;
+            margin: 0 0 16px 0;
+            text-transform: lowercase;
         }
 
-        .subtitle {
+        .status-header {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .desc {
             font-size: 16px;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
+            color: var(--text-dim);
             line-height: 1.5;
+            margin-bottom: 32 -px;
             font-weight: 400;
         }
 
-        /* Modern Vertical Toggles */
-        .options-group {
+        /* Option Interactions */
+        .grid-options {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-bottom: 20px;
+            margin: 24px 0;
         }
 
-        .options-group input[type="radio"] {
-            display: none;
-        }
+        .grid-options input { display: none; }
 
-        .options-group label {
-            display: block;
-            padding: 18px 24px;
-            border: 1.5px solid var(--border-soft);
-            border-radius: var(--radius-sm);
-            font-size: 15px;
+        .grid-options label {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 22px 24px;
+            border-radius: var(--radius);
             font-weight: 600;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            background: #fafafa;
+            transition: all 0.4s var(--ease-out);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .options-group input[type="radio"]:checked + label {
-            background-color: var(--text-primary);
+        .grid-options input:checked + label {
+            background: var(--text-main);
             color: var(--bg);
-            border-color: var(--text-primary);
             transform: scale(1.02);
         }
 
-        /* Custom Input Area */
-        #custom-area {
-            margin-top: -10px;
+        /* Custom Input Section */
+        #custom-panel {
             margin-bottom: 24px;
-            animation: slideDown 0.3s ease-out;
+            animation: fadeIn 0.4s var(--ease-out);
         }
 
         textarea {
             width: 100%;
-            padding: 16px;
-            border: 1.5px solid var(--border-soft);
-            border-radius: var(--radius-sm);
-            font-family: var(--font-main);
-            font-size: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            font-family: inherit;
             resize: none;
             box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s;
+            font-size: 15px;
         }
 
-        textarea:focus {
-            border-color: var(--text-primary);
-        }
-
-        /* Interaction */
-        .cta-button {
+        /* Buttons */
+        .btn-main {
             width: 100%;
-            padding: 22px;
-            background-color: var(--text-primary);
+            padding: 24px;
+            background: var(--text-main);
             color: var(--bg);
             border: none;
-            border-radius: var(--radius-lg);
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-        }
-
-        .cta-button:active {
-            transform: scale(0.97);
-        }
-
-        .metrics {
-            display: block;
-            margin-top: 24px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-align: center;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 900;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-out);
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Final State UI */
-        .status-badge {
-            width: 40px;
-            height: 4px;
-            background: #000;
-            margin-bottom: 30px;
+        .btn-main:active { transform: scale(0.96); }
+
+        /* Centered Thank You Content */
+        #thank-you-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 300px; /* Ensures enough space for centering */
+            animation: fadeIn 0.6s var(--ease-out);
         }
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .thank-you-badge {
+            font-size: 64px;
+            margin-bottom: 24px;
+            font-weight: 900;
         }
+
+        /* Real-time Indicator */
+        .live-sync {
+            margin-top: 32px;
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .pulse {
+            height: 6px; width: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="form-view">
-            <h1>Share Your Experience</h1>
-            <p class="subtitle">How would you characterize the current Luncher ecosystem?</p>
+    <div class="main-stage">
+        <div id="form-content">
+            <div class="status-header">
+                <span class="pulse"></span> Node Active
+            </div>
+            <h1>Luncher.</h1>
+            <p class="desc">Define the next phase of our trajectory. How has your interaction with the interface evolved?</p>
             
-            <form id="insightForm">
-                <div class="options-group">
-                    <input type="radio" id="opt1" name="rating" value="Exceptional" required>
-                    <label for="opt1">Exceptional</label>
+            <form id="feedbackForm">
+                <div class="grid-options">
+                    <input type="radio" id="r1" name="v" value="Elite" required>
+                    <label for="r1">Elite <span>→</span></label>
 
-                    <input type="radio" id="opt2" name="rating" value="Reliable">
-                    <label for="opt2">Reliable</label>
+                    <input type="radio" id="r2" name="v" value="Fluid">
+                    <label for="r2">Fluid <span>→</span></label>
 
-                    <input type="radio" id="opt3" name="rating" value="Functional">
-                    <label for="opt3">Functional</label>
+                    <input type="radio" id="r3" name="v" value="Static">
+                    <label for="r3">Static <span>→</span></label>
 
-                    <input type="radio" id="opt4" name="rating" value="Suboptimal">
-                    <label for="opt4">Suboptimal</label>
-
-                    <input type="radio" id="opt_custom" name="rating" value="Custom">
-                    <label for="opt_custom">Custom Feedback</label>
+                    <input type="radio" id="r_custom" name="v" value="Custom">
+                    <label for="r_custom">Custom Insight <span>+</span></label>
                 </div>
 
-                <div id="custom-area" class="hidden">
-                    <textarea id="custom_text" placeholder="Elaborate on your experience..." rows="3"></textarea>
+                <div id="custom-panel" class="hidden">
+                    <textarea id="custom_val" placeholder="Document your perspective..." rows="3"></textarea>
                 </div>
 
-                <button type="submit" class="cta-button">Confirm Submission</button>
+                <button type="submit" class="btn-main">Authorize Submission</button>
             </form>
-            <span class="metrics" id="globalCounter">Syncing global data...</span>
+
+            <div class="live-sync" id="global-counter">Synchronizing Neural Link...</div>
         </div>
 
-        <div id="complete-view" class="hidden">
-            <div class="status-badge"></div>
-            <h1>Contribution Received</h1>
-            <p class="subtitle">Your perspective has been integrated into the Luncher roadmap. This device has already participated in this cycle.</p>
-            <span class="metrics" id="finalCounter"></span>
+        <div id="thank-you-content" class="hidden">
+            <div class="thank-you-badge">✦</div>
+            <h1>Confirmed.</h1>
+            <p class="desc" style="margin-bottom: 40px;">Your contribution has been archived. This terminal's trajectory is now logged.</p>
+            
+            <a href="https://play.google.com/store/apps/details?id=com.uaebazzar.luncher" class="btn-main">Download Luncher</a>
+            
+            <div class="live-sync" id="final-counter"></div>
         </div>
     </div>
 
@@ -221,65 +277,60 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const formView = document.getElementById('form-view');
-        const completeView = document.getElementById('complete-view');
-        const customArea = document.getElementById('custom-area');
-        const counterEl = document.getElementById('globalCounter');
-        const finalCounterEl = document.getElementById('finalCounter');
+        const formUI = document.getElementById('form-content');
+        const thanksUI = document.getElementById('thank-you-content');
+        const countUI = document.getElementById('global-counter');
+        const finalUI = document.getElementById('final-counter');
+        const customPanel = document.getElementById('custom-panel');
 
-        // Toggle Custom Textarea
-        document.querySelectorAll('input[name="rating"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if(e.target.id === 'opt_custom') {
-                    customArea.classList.remove('hidden');
-                } else {
-                    customArea.classList.add('hidden');
-                }
+        // Logic: Custom View Toggle
+        document.querySelectorAll('input[name="v"]').forEach(el => {
+            el.addEventListener('change', (e) => {
+                if(e.target.id === 'r_custom') customPanel.classList.remove('hidden');
+                else customPanel.classList.add('hidden');
             });
         });
 
-        // Realtime Global Listener
-        const countRef = ref(db, 'stats/submitCount');
-        onValue(countRef, (snap) => {
+        // Firebase: Global Count Update
+        const statsRef = ref(db, 'stats/submitCount');
+        onValue(statsRef, (snap) => {
             const count = snap.val() || 0;
-            const msg = `${count.toLocaleString()} Contributions Logged`;
-            counterEl.innerText = msg;
-            finalCounterEl.innerText = msg;
+            const text = `${count.toLocaleString()} Signals Recorded`;
+            countUI.innerText = text;
+            finalUI.innerText = text;
         });
 
-        // Persistent Device Lock
-        if (localStorage.getItem('luncher_auth_vote') === 'true') {
-            showSuccess();
+        // Persist: Submission Lock
+        if (localStorage.getItem('luncher_secure_v2')) {
+            showFinal();
         }
 
-        // Handle Submission
-        document.getElementById('insightForm').addEventListener('submit', async (e) => {
+        // Logic: Transmit Data
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const rating = document.querySelector('input[name="rating"]:checked').value;
-            const customText = document.getElementById('custom_text').value;
+            const rating = document.querySelector('input[name="v"]:checked').value;
+            const detail = document.getElementById('custom_val').value;
 
             try {
-                // Record data
                 const subRef = push(ref(db, 'submissions'));
                 await set(subRef, {
                     category: rating,
-                    feedback: rating === 'Custom' ? customText : 'N/A',
+                    feedback: rating === 'Custom' ? detail : 'None',
                     timestamp: Date.now()
                 });
 
-                // Atomic counter update
-                await runTransaction(countRef, (curr) => (curr || 0) + 1);
+                await runTransaction(statsRef, (count) => (count || 0) + 1);
 
-                localStorage.setItem('luncher_auth_vote', 'true');
-                showSuccess();
+                localStorage.setItem('luncher_secure_v2', 'true');
+                showFinal();
             } catch (err) {
-                console.error("Transmission error:", err);
+                console.error("Link severed:", err);
             }
         });
 
-        function showSuccess() {
-            formView.classList.add('hidden');
-            completeView.classList.remove('hidden');
+        function showFinal() {
+            formUI.classList.add('hidden');
+            thanksUI.classList.remove('hidden');
         }
     </script>
 </body>
