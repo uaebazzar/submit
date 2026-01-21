@@ -1,89 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Submit Your Answers</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-    body {
-        font-family: 'Roboto', sans-serif;
-        background: #f4f7f9;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Your Answer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1; /* Modern Indigo */
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border-color: #e2e8f0;
+        }
 
-    .container {
-        background: #fff;
-        padding: 40px 30px;
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-main);
+        }
 
-    h1 {
-        margin-bottom: 10px;
-        font-size: 28px;
-        color: #333;
-    }
+        .container {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 420px;
+        }
 
-    p {
-        margin-bottom: 30px;
-        font-size: 18px;
-        color: #666;
-    }
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
 
-    .ratings {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 30px;
-    }
+        .subtitle {
+            margin-bottom: 24px;
+            font-size: 16px;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
 
-    .ratings label {
-        background: #f0f0f0;
-        padding: 12px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        flex: 1;
-        margin: 0 5px;
-    }
+        /* Stack options vertically */
+        .ratings {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
 
-    .ratings input[type="radio"] {
-        display: none;
-    }
+        .ratings input[type="radio"] {
+            display: none;
+        }
 
-    .ratings input[type="radio"]:checked + label {
-        background: #4CAF50;
-        color: #fff;
-        font-weight: bold;
-    }
+        /* Modern clickable rows */
+        .ratings label {
+            display: block;
+            padding: 14px 20px;
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
 
-    button {
-        padding: 12px 25px;
-        font-size: 16px;
-        border: none;
-        border-radius: 8px;
-        background: #4CAF50;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
+        .ratings label:hover {
+            border-color: var(--primary-color);
+            background: #f5f3ff;
+        }
 
-    button:hover {
-        background: #45a049;
-    }
-</style>
+        /* Active State */
+        .ratings input[type="radio"]:checked + label {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color);
+            color: #fff;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Submit Your Answers</h1>
-        <p>Rate App Performance</p>
+        <h1>Submit Your Answer</h1>
+        <p class="subtitle">How would you rate the launcher app?</p>
+        
         <form>
             <div class="ratings">
                 <input type="radio" id="excellent" name="rating" value="Excellent">
@@ -101,7 +127,7 @@
                 <input type="radio" id="bad" name="rating" value="Bad">
                 <label for="bad">Bad</label>
             </div>
-            <button type="submit">Submit</button>
+            <button type="submit">Submit Feedback</button>
         </form>
     </div>
 </body>
