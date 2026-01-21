@@ -4,131 +4,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Your Answer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #6366f1; /* Modern Indigo */
-            --bg-color: #f8fafc;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --border-color: #e2e8f0;
+            --bg: #ffffff;
+            --text: #000000;
+            --gray: #f2f2f2;
+            --border: #e0e0e0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            background: #ffffff;
-            padding: 32px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        .content-wrapper {
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
+            padding: 20px;
         }
+
+        /* Visibility States */
+        .hidden { display: none; }
 
         h1 {
-            margin: 0 0 8px 0;
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: -0.025em;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
 
         .subtitle {
-            margin-bottom: 24px;
-            font-size: 16px;
-            color: var(--text-sub);
-            line-height: 1.5;
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
         }
 
-        /* Stack options vertically */
-        .ratings {
+        /* Vertical Options */
+        .options-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
-        .ratings input[type="radio"] {
+        .options-list input[type="radio"] {
             display: none;
         }
 
-        /* Modern clickable rows */
-        .ratings label {
+        .options-list label {
             display: block;
-            padding: 14px 20px;
-            background: #fff;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            text-align: left;
-        }
-
-        .ratings label:hover {
-            border-color: var(--primary-color);
-            background: #f5f3ff;
-        }
-
-        /* Active State */
-        .ratings input[type="radio"]:checked + label {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             font-size: 16px;
-            font-weight: 600;
-            border: none;
-            border-radius: 10px;
-            background: var(--primary-color);
-            color: #fff;
+            font-weight: 500;
             cursor: pointer;
-            transition: opacity 0.2s ease;
+            transition: all 0.2s ease;
         }
 
-        button:hover {
-            opacity: 0.9;
+        .options-list label:hover {
+            background-color: var(--gray);
+        }
+
+        /* Selected State - Pure Black & White */
+        .options-list input[type="radio"]:checked + label {
+            background-color: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            background-color: var(--text);
+            color: var(--bg);
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Thank You Page Style */
+        #thank-you-page {
+            text-align: center;
+        }
+
+        #thank-you-page .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Submit Your Answer</h1>
-        <p class="subtitle">How would you rate the launcher app?</p>
-        
-        <form>
-            <div class="ratings">
-                <input type="radio" id="excellent" name="rating" value="Excellent">
-                <label for="excellent">Excellent</label>
 
-                <input type="radio" id="good" name="rating" value="Good">
-                <label for="good">Good</label>
+    <div class="content-wrapper">
+        <div id="form-page">
+            <h1>Submit Your Answer</h1>
+            <p class="subtitle">How would you rate the launcher app?</p>
+            
+            <form id="ratingForm">
+                <div class="options-list">
+                    <input type="radio" id="excellent" name="rating" value="Excellent" required>
+                    <label for="excellent">Excellent</label>
 
-                <input type="radio" id="average" name="rating" value="Average">
-                <label for="average">Average</label>
+                    <input type="radio" id="good" name="rating" value="Good">
+                    <label for="good">Good</label>
 
-                <input type="radio" id="poor" name="rating" value="Poor">
-                <label for="poor">Poor</label>
+                    <input type="radio" id="average" name="rating" value="Average">
+                    <label for="average">Average</label>
 
-                <input type="radio" id="bad" name="rating" value="Bad">
-                <label for="bad">Bad</label>
-            </div>
-            <button type="submit">Submit Feedback</button>
-        </form>
+                    <input type="radio" id="poor" name="rating" value="Poor">
+                    <label for="poor">Poor</label>
+
+                    <input type="radio" id="bad" name="rating" value="Bad">
+                    <label for="bad">Bad</label>
+                </div>
+                <button type="submit" class="submit-btn">Submit Feedback</button>
+            </form>
+        </div>
+
+        <div id="thank-you-page" class="hidden">
+            <div class="icon">✓</div>
+            <h1>Thank You</h1>
+            <p class="subtitle">Your feedback for the launcher app has been recorded. You have already submitted your response.</p>
+        </div>
     </div>
+
+    <script>
+        const formPage = document.getElementById('form-page');
+        const thankYouPage = document.getElementById('thank-you-page');
+        const ratingForm = document.getElementById('ratingForm');
+
+        // 1. Check if user already submitted on page load
+        window.onload = () => {
+            if (localStorage.getItem('launcher_feedback_submitted') === 'true') {
+                showThankYou();
+            }
+        };
+
+        // 2. Handle Form Submission
+        ratingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Save to localStorage (Device memory)
+            localStorage.setItem('launcher_feedback_submitted', 'true');
+            
+            showThankYou();
+        });
+
+        function showThankYou() {
+            formPage.classList.add('hidden');
+            thankYouPage.classList.remove('hidden');
+        }
+    </script>
+
 </body>
 </html>
