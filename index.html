@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Your Answers</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: #f4f7f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        background: #fff;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        font-size: 28px;
+        color: #333;
+    }
+
+    p {
+        margin-bottom: 30px;
+        font-size: 18px;
+        color: #666;
+    }
+
+    .ratings {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .ratings label {
+        background: #f0f0f0;
+        padding: 12px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex: 1;
+        margin: 0 5px;
+    }
+
+    .ratings input[type="radio"] {
+        display: none;
+    }
+
+    .ratings input[type="radio"]:checked + label {
+        background: #4CAF50;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    button {
+        padding: 12px 25px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        background: #4CAF50;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    button:hover {
+        background: #45a049;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Submit Your Answers</h1>
+        <p>Rate App Performance</p>
+        <form>
+            <div class="ratings">
+                <input type="radio" id="excellent" name="rating" value="Excellent">
+                <label for="excellent">Excellent</label>
+
+                <input type="radio" id="good" name="rating" value="Good">
+                <label for="good">Good</label>
+
+                <input type="radio" id="average" name="rating" value="Average">
+                <label for="average">Average</label>
+
+                <input type="radio" id="poor" name="rating" value="Poor">
+                <label for="poor">Poor</label>
+
+                <input type="radio" id="bad" name="rating" value="Bad">
+                <label for="bad">Bad</label>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
