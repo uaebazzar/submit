@@ -23,21 +23,14 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        #home-canvas { z-index: 0; }
-        #thanks-canvas { z-index: 1; opacity: 0; transition: opacity 2s ease; }
+        #shader-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
         .container {
             z-index: 10; width: 100%; max-width: 450px; padding: 40px;
             box-sizing: border-box; text-align: left;
             background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); border-radius: 32px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.5s ease;
-        }
-
-        .container.transparent {
-            background: transparent; backdrop-filter: none; border-color: transparent;
-            max-width: 800px; text-align: center;
+            transition: transform 0.8s var(--ease), opacity 0.5s ease;
         }
 
         .hidden { display: none !important; }
@@ -45,46 +38,34 @@
         @keyframes qR { to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 
         h1 { font-size: clamp(40px, 10vw, 64px); font-weight: 900; letter-spacing: -4px; margin: 0; line-height: 0.85; text-transform: lowercase; }
-        
-        .thanks-title {
-            background: linear-gradient(to right, #fdba74, #facc15, #fcd34d);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            margin-bottom: 20px; letter-spacing: -2px;
-        }
-
+        .meta-text { font-size: 11px; font-weight: 700; letter-spacing: 5px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 24px; display: block; }
         .desc { font-size: 18px; color: var(--text-dim); margin: 24px 0 48px 0; line-height: 1.4; }
 
         /* --- BUTTONS --- */
         @keyframes rainbow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* Transmit Button */
         .rainbow-button {
             position: relative; display: inline-flex; height: 2.75rem; cursor: pointer; align-items: center; justify-content: center;
-            border-radius: 0.75rem; border: 0; padding: 0.5rem 2rem; font-size: 0.875rem; font-weight: 500; color: white;
+            border-radius: 0.75rem; border: 0; padding: 0.5rem 2.2rem; font-size: 0.875rem; font-weight: 500; color: white;
             transition: all 0.2s var(--ease); text-decoration: none; background-size: 200%; animation: rainbow 3s linear infinite;
             background-image: linear-gradient(#121213, #121213), linear-gradient(#121213 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)), 
                 linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)));
             background-clip: padding-box, border-box, border-box; background-origin: border-box; border: 2px solid transparent;
+            outline: none; -webkit-tap-highlight-color: transparent;
         }
-        .rainbow-button::before {
-            content: ""; position: absolute; bottom: -20%; left: 50%; z-index: -1; height: 20%; width: 60%; transform: translateX(-50%);
-            animation: rainbow 3s linear infinite; background: linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)));
-            background-size: 200%; filter: blur(0.8rem);
-        }
+        .rainbow-button:active { transform: scale(0.96); }
 
-        /* NEW PLAY STORE BUTTON */
         .play-store-button {
-            display: inline-flex; align-items: center; gap: 10px; height: 2.75rem; padding: 0 1.25rem;
+            display: inline-flex; align-items: center; gap: 10px; height: 2.85rem; padding: 0 1.5rem;
             background: #ffffff; color: #000000; border-radius: 0.75rem; border: none;
-            text-decoration: none; transition: transform 0.2s var(--ease), opacity 0.2s;
-            cursor: pointer;
+            text-decoration: none; transition: transform 0.2s var(--ease); cursor: pointer;
+            -webkit-tap-highlight-color: transparent; outline: none;
         }
-        .play-store-button:hover { transform: scale(1.02); opacity: 0.9; }
-        .play-store-button:active { transform: scale(0.98); }
-        .play-store-button svg { width: 20px; height: 20px; }
+        .play-store-button:active { transform: scale(0.95); }
+        .play-store-button svg { width: 22px; height: 22px; }
         .play-store-button .btn-content { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
-        .play-store-button .btn-subtext { font-size: 9px; font-weight: 300; letter-spacing: -0.2px; margin-bottom: 2px; }
-        .play-store-button .btn-maintext { font-size: 15px; font-weight: 700; }
+        .play-store-button .btn-subtext { font-size: 9px; font-weight: 400; letter-spacing: -0.1px; margin-bottom: 2px; }
+        .play-store-button .btn-maintext { font-size: 16px; font-weight: 700; }
 
         .counter-grid { margin-top: 64px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
         .live-label { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
@@ -92,19 +73,18 @@
 </head>
 <body>
 
-    <canvas id="home-canvas"></canvas>
-    <canvas id="thanks-canvas"></canvas>
+    <canvas id="shader-canvas"></canvas>
 
     <div class="container reveal" id="main-ui">
         <div id="view-form">
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 5px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 24px; display: block;">System / Luncher</span>
+            <span class="meta-text">System / Luncher</span>
             <h1>Evolve.</h1>
             <p class="desc">Rate the app in < 10s. This helps us deploy the future you want.</p>
             
             <form id="ultraForm">
-                <div id="error-msg" style="color: var(--error); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; height: 14px; opacity: 0;">Input required</div>
-                <div style="margin-bottom: 32px;">
-                    <textarea id="feedback_msg" placeholder="What should we build next?" rows="2" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; font-size: 20px; padding: 12px 0; outline: none;"></textarea>
+                <div id="error-msg" style="color: var(--error); font-size: 12px; font-weight: 700; text-transform: uppercase; height: 14px; opacity: 0; margin-bottom: 10px;">Input required</div>
+                <div style="margin-bottom: 40px;">
+                    <textarea id="feedback_msg" placeholder="What should we build next?" rows="2" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; font-size: 20px; padding: 12px 0; outline: none; resize: none;"></textarea>
                 </div>
                 <button type="submit" class="rainbow-button">Transmit →</button>
             </form>
@@ -115,85 +95,46 @@
             </div>
         </div>
 
-        <div id="view-thanks" class="hidden">
-            <div style="font-size: 50px; margin-bottom: 24px; color: #fb923c;">✦</div>
-            <h1 class="thanks-title">Archived.</h1>
-            <p class="desc" style="color: #ffedd5; max-width: 500px; margin-left: auto; margin-right: auto;">Your insight has been integrated into the Luncher roadmap.</p>
+        <div id="view-thanks" class="hidden" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 20px;">✦</div>
+            <h1>Archived.</h1>
+            <p class="desc" style="margin-bottom: 48px;">Your insight has been integrated into the Luncher roadmap.</p>
             
-            <div style="margin-top: 40px;">
-                <a href="https://play.google.com/store/apps/details?id=com.uaebazzar.luncher" class="play-store-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="m21.762,9.942L4.67.378c-.721-.466-1.635-.504-2.393-.099-.768.411-1.246,1.208-1.246,2.08v19.282c0,.872.477,1.668,1.246,2.079.755.404,1.668.37,2.393-.098l17.092-9.564c.756-.423,1.207-1.192,1.207-2.058s-.451-1.635-1.207-2.058Zm-5.746-1.413l-2.36,2.36L5.302,2.534l10.714,5.995ZM2.604,21.906V2.094l9.941,9.906L2.604,21.906Zm2.698-.439l8.355-8.355,2.36,2.36-10.714,5.995Zm15.692-8.78l-3.552,1.987-2.674-2.674,2.674-2.674,3.552,1.987c.363.203.402.548.402.686s-.039.483-.402.686Z" />
-                    </svg>
-                    <div class="btn-content">
-                        <span class="btn-subtext">GET IT ON</span>
-                        <span class="btn-maintext">Google Play</span>
-                    </div>
-                </a>
-            </div>
+            <a href="https://play.google.com/store/apps/details?id=com.uaebazzar.luncher" class="play-store-button">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="m21.762,9.942L4.67.378c-.721-.466-1.635-.504-2.393-.099-.768.411-1.246,1.208-1.246,2.08v19.282c0,.872.477,1.668,1.246,2.079.755.404,1.668.37,2.393-.098l17.092-9.564c.756-.423,1.207-1.192,1.207-2.058s-.451-1.635-1.207-2.058Zm-5.746-1.413l-2.36,2.36L5.302,2.534l10.714,5.995ZM2.604,21.906V2.094l9.941,9.906L2.604,21.906Zm2.698-.439l8.355-8.355,2.36,2.36-10.714,5.995Zm15.692-8.78l-3.552,1.987-2.674-2.674,2.674-2.674,3.552,1.987c.363.203.402.548.402.686s-.039.483-.402.686Z" />
+                </svg>
+                <div class="btn-content">
+                    <span class="btn-subtext">GET IT ON</span>
+                    <span class="btn-maintext">Google Play</span>
+                </div>
+            </a>
 
-            <div class="counter-grid" style="margin-top: 100px; border-top-color: rgba(255,255,255,0.05);">
+            <div class="counter-grid" style="margin-top: 64px;">
                 <span class="live-label">Global Node Count</span>
-                <span id="final-node-count" style="font-size: 14px; font-weight: 700; color: #fb923c;">0</span>
+                <span id="final-node-count" style="font-size: 14px; font-weight: 700;">0</span>
             </div>
         </div>
     </div>
 
     <script>
-        // --- WebGL Shaders (Home & Thanks) ---
-        const homeCanvas = document.getElementById('home-canvas');
-        const hgl = homeCanvas.getContext('webgl');
-        const hfs = `precision mediump float; uniform vec2 r; uniform float t; vec3 pal(float t) { return 0.5 + 0.5*cos(6.28318*(vec3(1,1,1)*t+vec3(0.26,0.41,0.55))); } void main() { vec2 uv = gl_FragCoord.xy/r.xy; vec2 uv0 = uv; uv = uv*2.0-1.0; uv.x *= r.x/r.y; vec3 col = vec3(0); for(float i=0.0; i<4.0; i++) { uv = fract(uv*1.5)-0.5; float d = length(uv)*exp(-length(uv0)); vec3 c = pal(length(uv0)+i*0.4+t*0.01); d = sin(d*4.0+t)/36.0; d = pow(0.005/d, 1.2); col += c * d; } gl_FragColor = vec4(col*mix(vec3(0.1,0.2,0.5), vec3(0.9,0.1,0.4), uv0.y), 1.0); }`;
-        const hvs = `attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }`;
-        const hProg = hgl.createProgram();
-        const addH = (type, src) => { const s = hgl.createShader(type); hgl.shaderSource(s, src); hgl.compileShader(s); hgl.attachShader(hProg, s); };
-        addH(hgl.VERTEX_SHADER, hvs); addH(hgl.FRAGMENT_SHADER, hfs); hgl.linkProgram(hProg);
-        hgl.bindBuffer(hgl.ARRAY_BUFFER, hgl.createBuffer()); hgl.bufferData(hgl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), hgl.STATIC_DRAW);
-        const hpL = hgl.getAttribLocation(hProg, "p");
-        function hRender(time) {
-            homeCanvas.width = window.innerWidth; homeCanvas.height = window.innerHeight; hgl.viewport(0,0,homeCanvas.width,homeCanvas.height);
-            hgl.useProgram(hProg); hgl.enableVertexAttribArray(hpL); hgl.vertexAttribPointer(hpL, 2, hgl.FLOAT, false, 0, 0);
-            hgl.uniform2f(hgl.getUniformLocation(hProg, "r"), homeCanvas.width, homeCanvas.height);
-            hgl.uniform1f(hgl.getUniformLocation(hProg, "t"), time*0.001); hgl.drawArrays(hgl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(hRender);
+        const canvas = document.getElementById('shader-canvas');
+        const gl = canvas.getContext('webgl');
+        const vs = `attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }`;
+        const fs = `precision mediump float; uniform vec2 r; uniform float t; vec3 pal(float t) { return 0.5 + 0.5*cos(6.28318*(vec3(1,1,1)*t+vec3(0.26,0.41,0.55))); } void main() { vec2 uv = gl_FragCoord.xy/r.xy; vec2 uv0 = uv; uv = uv*2.0-1.0; uv.x *= r.x/r.y; vec3 col = vec3(0); for(float i=0.0; i<4.0; i++) { uv = fract(uv*1.5)-0.5; float d = length(uv)*exp(-length(uv0)); vec3 c = pal(length(uv0)+i*0.4+t*0.01); d = sin(d*4.0+t)/36.0; d = pow(0.005/d, 1.2); col += c * d; } gl_FragColor = vec4(col*mix(vec3(0.1,0.2,0.5), vec3(0.9,0.1,0.4), uv0.y), 1.0); }`;
+        const prog = gl.createProgram();
+        const addS = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); gl.attachShader(prog, s); };
+        addS(gl.VERTEX_SHADER, vs); addS(gl.FRAGMENT_SHADER, fs); gl.linkProgram(prog);
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+        const pL = gl.getAttribLocation(prog, "p");
+        function render(time) {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight; gl.viewport(0,0,canvas.width,canvas.height);
+            gl.useProgram(prog); gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL, 2, gl.FLOAT, false, 0, 0);
+            gl.uniform2f(gl.getUniformLocation(prog, "r"), canvas.width, canvas.height);
+            gl.uniform1f(gl.getUniformLocation(prog, "t"), time*0.001); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
         }
-        hRender(0);
-
-        const thanksCanvas = document.getElementById('thanks-canvas');
-        const tgl = thanksCanvas.getContext('webgl2');
-        const tfs = `#version 300 es
-        precision highp float; out vec4 O; uniform vec2 resolution; uniform float time;
-        float rnd(vec2 p) { p=fract(p*vec2(12.9898,78.233)); p+=dot(p,p+34.56); return fract(p.x*p.y); }
-        float noise(in vec2 p) { vec2 i=floor(p), f=fract(p), u=f*f*(3.-2.*f); return mix(mix(rnd(i),rnd(i+vec2(1,0)),u.x),mix(rnd(i+vec2(0,1)),rnd(i+1.),u.x),u.y); }
-        float fbm(vec2 p) { float t=.0, a=1.; mat2 m=mat2(1.,-.5,.2,1.2); for (int i=0; i<5; i++) { t+=a*noise(p); p*=2.*m; a*=.5; } return t; }
-        float clouds(vec2 p) { float d=1., t=.0; for (float i=.0; i<3.; i++) { float a=d*fbm(i*10.+p.x*.2+.2*(1.+i)*p.y+d+i*i+p); t=mix(t,d,a); d=a; p*=2./(i+1.); } return t; }
-        void main() {
-            vec2 uv=(gl_FragCoord.xy-.5*resolution)/min(resolution.x,resolution.y),st=uv*vec2(2,1); vec3 col=vec3(0);
-            float bg=clouds(vec2(st.x+time*.5,-st.y)); uv*=1.-.3*(sin(time*.2)*.5+.5);
-            for (float i=1.; i<12.; i++) {
-                uv+=.1*cos(i*vec2(.1+.01*i, .8)+i*i+time*.5+.1*uv.x);
-                float d=length(uv); col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.0);
-                float b=noise(i+uv+bg*1.731); col+=.002*b/length(max(uv,vec2(b*uv.x*.02,uv.y)));
-                col=mix(col,vec3(bg*.25,bg*.137,bg*.05),d);
-            }
-            O=vec4(col,1);
-        }`;
-        let tProg;
-        function setupSpace() {
-            tProg = tgl.createProgram();
-            const add = (type, src) => { const s = tgl.createShader(type); tgl.shaderSource(s, src); tgl.compileShader(s); tgl.attachShader(tProg, s); };
-            add(tgl.VERTEX_SHADER, `#version 300 es\nin vec4 position; void main(){gl_Position=position;}`);
-            add(tgl.FRAGMENT_SHADER, tfs); tgl.linkProgram(tProg);
-            tgl.bindBuffer(tgl.ARRAY_BUFFER, tgl.createBuffer()); tgl.bufferData(tgl.ARRAY_BUFFER, new Float32Array([-1,1,-1,-1,1,1,1,-1]), tgl.STATIC_DRAW);
-        }
-        function tRender(time) {
-            thanksCanvas.width = window.innerWidth; thanksCanvas.height = window.innerHeight; tgl.viewport(0,0,thanksCanvas.width,thanksCanvas.height);
-            tgl.useProgram(tProg);
-            const pos = tgl.getAttribLocation(tProg, 'position'); tgl.enableVertexAttribArray(pos); tgl.vertexAttribPointer(pos, 2, tgl.FLOAT, false, 0, 0);
-            tgl.uniform2f(tgl.getUniformLocation(tProg, 'resolution'), thanksCanvas.width, thanksCanvas.height);
-            tgl.uniform1f(tgl.getUniformLocation(tProg, 'time'), time * 0.001);
-            tgl.drawArrays(tgl.TRIANGLE_STRIP, 0, 4); requestAnimationFrame(tRender);
-        }
+        render(0);
     </script>
 
     <script type="module">
@@ -213,7 +154,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const feedbackInput = document.getElementById('feedback_msg');
 
         onValue(ref(db, 'stats/submitCount'), (snap) => {
             const c = snap.val() || 0;
@@ -225,7 +165,7 @@
 
         document.getElementById('ultraForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const val = feedbackInput.value.trim();
+            const val = document.getElementById('feedback_msg').value.trim();
             if (!val) {
                 document.getElementById('error-msg').style.opacity = "1";
                 setTimeout(() => { document.getElementById('error-msg').style.opacity = "0"; }, 3000);
@@ -240,11 +180,13 @@
         });
 
         function showSuccess() {
-            document.getElementById('view-form').classList.add('hidden');
-            document.getElementById('view-thanks').classList.remove('hidden');
-            document.getElementById('main-ui').classList.add('transparent');
-            setupSpace(); tRender(0);
-            document.getElementById('thanks-canvas').style.opacity = "1";
+            const container = document.getElementById('main-ui');
+            container.style.opacity = "0"; // Smooth fade out
+            setTimeout(() => {
+                document.getElementById('view-form').classList.add('hidden');
+                document.getElementById('view-thanks').classList.remove('hidden');
+                container.style.opacity = "1"; // Fade in card with new content
+            }, 300);
         }
     </script>
 </body>
