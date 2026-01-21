@@ -41,6 +41,13 @@
         .meta-text { font-size: 11px; font-weight: 700; letter-spacing: 5px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 24px; display: block; }
         .desc { font-size: 18px; color: var(--text-dim); margin: 24px 0 48px 0; line-height: 1.4; }
 
+        /* Privacy/Firebase Label */
+        .security-note {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            margin-top: 32px; color: rgba(255,255,255,0.3); font-size: 10px;
+            font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
         /* --- BUTTONS --- */
         @keyframes rainbow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
@@ -53,7 +60,6 @@
             background-clip: padding-box, border-box, border-box; background-origin: border-box; border: 2px solid transparent;
             outline: none; -webkit-tap-highlight-color: transparent;
         }
-        .rainbow-button:active { transform: scale(0.96); }
 
         .play-store-button {
             display: inline-flex; align-items: center; gap: 10px; height: 2.85rem; padding: 0 1.5rem;
@@ -67,7 +73,7 @@
         .play-store-button .btn-subtext { font-size: 9px; font-weight: 400; letter-spacing: -0.1px; margin-bottom: 2px; }
         .play-store-button .btn-maintext { font-size: 16px; font-weight: 700; }
 
-        .counter-grid { margin-top: 64px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .counter-grid { margin-top: 48px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
         .live-label { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
@@ -83,11 +89,16 @@
             
             <form id="ultraForm">
                 <div id="error-msg" style="color: var(--error); font-size: 12px; font-weight: 700; text-transform: uppercase; height: 14px; opacity: 0; margin-bottom: 10px;">Input required</div>
-                <div style="margin-bottom: 40px;">
+                <div style="margin-bottom: 32px;">
                     <textarea id="feedback_msg" placeholder="What should we build next?" rows="2" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; font-size: 20px; padding: 12px 0; outline: none; resize: none;"></textarea>
                 </div>
                 <button type="submit" class="rainbow-button">Transmit →</button>
             </form>
+
+            <div class="security-note">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>Responses collected safely via Google Firebase</span>
+            </div>
 
             <div class="counter-grid">
                 <span class="live-label">Global Nodes</span>
@@ -110,7 +121,12 @@
                 </div>
             </a>
 
-            <div class="counter-grid" style="margin-top: 64px;">
+            <div class="security-note">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>Data stored securely in Google Firebase Cloud</span>
+            </div>
+
+            <div class="counter-grid" style="margin-top: 48px;">
                 <span class="live-label">Global Node Count</span>
                 <span id="final-node-count" style="font-size: 14px; font-weight: 700;">0</span>
             </div>
@@ -181,11 +197,11 @@
 
         function showSuccess() {
             const container = document.getElementById('main-ui');
-            container.style.opacity = "0"; // Smooth fade out
+            container.style.opacity = "0";
             setTimeout(() => {
                 document.getElementById('view-form').classList.add('hidden');
                 document.getElementById('view-thanks').classList.remove('hidden');
-                container.style.opacity = "1"; // Fade in card with new content
+                container.style.opacity = "1";
             }, 300);
         }
     </script>
