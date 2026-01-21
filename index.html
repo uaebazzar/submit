@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luncher | Feedback</title>
+    <title>Luncher | User Insights</title>
     <style>
         :root {
             --bg: #ffffff;
-            --text: #000000;
-            --gray-light: #f9f9f9;
-            --border: #e0e0e0;
-            --radius: 16px; /* Modern rounded corners */
+            --text-primary: #000000;
+            --text-secondary: #6b7280;
+            --border-soft: #f3f4f6;
+            --border-active: #000000;
+            --radius-lg: 20px;
+            --radius-sm: 12px;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* Prevent all scrolling */
+        /* Enforce absolute stability */
         html, body {
             overflow: hidden;
             height: 100%;
@@ -22,8 +25,8 @@
             padding: 0;
             position: fixed;
             background-color: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-primary);
+            font-family: var(--font-main);
             -webkit-font-smoothing: antialiased;
             touch-action: none;
         }
@@ -34,141 +37,169 @@
             align-items: center;
         }
 
-        .content-wrapper {
+        .container {
             width: 100%;
-            max-width: 360px;
+            max-width: 380px;
             padding: 24px;
+            box-sizing: border-box;
         }
 
         .hidden { display: none !important; }
 
+        /* Typography */
         h1 {
-            font-size: 30px;
+            font-size: 34px;
             font-weight: 800;
-            margin: 0 0 8px 0;
-            letter-spacing: -1.2px;
+            margin: 0 0 12px 0;
+            letter-spacing: -1.5px;
+            line-height: 1;
         }
 
         .subtitle {
             font-size: 16px;
-            color: #666;
-            margin-bottom: 32px;
-            line-height: 1.4;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.5;
+            font-weight: 400;
         }
 
-        /* Rounded Vertical Options */
-        .options-list {
+        /* Modern Vertical Toggles */
+        .options-group {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .options-list input[type="radio"] {
+        .options-group input[type="radio"] {
             display: none;
         }
 
-        .options-list label {
+        .options-group label {
             display: block;
-            padding: 20px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 16px;
+            padding: 18px 24px;
+            border: 1.5px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fafafa;
         }
 
-        /* Selected State */
-        .options-list input[type="radio"]:checked + label {
-            background-color: var(--text);
+        .options-group input[type="radio"]:checked + label {
+            background-color: var(--text-primary);
             color: var(--bg);
-            border-color: var(--text);
+            border-color: var(--text-primary);
+            transform: scale(1.02);
         }
 
-        .submit-btn {
+        /* Custom Input Area */
+        #custom-area {
+            margin-top: -10px;
+            margin-bottom: 24px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        textarea {
             width: 100%;
-            padding: 20px;
-            background-color: var(--text);
+            padding: 16px;
+            border: 1.5px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-main);
+            font-size: 14px;
+            resize: none;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--text-primary);
+        }
+
+        /* Interaction */
+        .cta-button {
+            width: 100%;
+            padding: 22px;
+            background-color: var(--text-primary);
             color: var(--bg);
             border: none;
-            border-radius: var(--radius);
-            font-size: 15px;
+            border-radius: var(--radius-lg);
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.1s active;
+            transition: opacity 0.2s, transform 0.1s;
         }
 
-        .submit-btn:active {
-            transform: scale(0.98);
+        .cta-button:active {
+            transform: scale(0.97);
         }
 
-        .user-count {
+        .metrics {
             display: block;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #888;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-secondary);
             text-align: center;
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        /* Thank You Page */
-        .status-dot {
-            width: 12px;
-            height: 12px;
+        /* Final State UI */
+        .status-badge {
+            width: 40px;
+            height: 4px;
             background: #000;
-            border-radius: 50%;
-            display: block;
-            margin-bottom: 24px;
-        }
-        
-        #thank-you-page {
-            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-bottom: 30px;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="content-wrapper">
-        <div id="form-page">
-            <h1>Submit Your Answer</h1>
-            <p class="subtitle">How would you rate the Luncher app?</p>
+    <div class="container">
+        <div id="form-view">
+            <h1>Share Your Experience</h1>
+            <p class="subtitle">How would you characterize the current Luncher ecosystem?</p>
             
-            <form id="ratingForm">
-                <div class="options-list">
-                    <input type="radio" id="excellent" name="rating" value="Excellent" required>
-                    <label for="excellent">Excellent</label>
+            <form id="insightForm">
+                <div class="options-group">
+                    <input type="radio" id="opt1" name="rating" value="Exceptional" required>
+                    <label for="opt1">Exceptional</label>
 
-                    <input type="radio" id="good" name="rating" value="Good">
-                    <label for="good">Good</label>
+                    <input type="radio" id="opt2" name="rating" value="Reliable">
+                    <label for="opt2">Reliable</label>
 
-                    <input type="radio" id="average" name="rating" value="Average">
-                    <label for="average">Average</label>
+                    <input type="radio" id="opt3" name="rating" value="Functional">
+                    <label for="opt3">Functional</label>
 
-                    <input type="radio" id="poor" name="rating" value="Poor">
-                    <label for="poor">Poor</label>
+                    <input type="radio" id="opt4" name="rating" value="Suboptimal">
+                    <label for="opt4">Suboptimal</label>
 
-                    <input type="radio" id="bad" name="rating" value="Bad">
-                    <label for="bad">Bad</label>
+                    <input type="radio" id="opt_custom" name="rating" value="Custom">
+                    <label for="opt_custom">Custom Feedback</label>
                 </div>
-                <button type="submit" class="submit-btn" id="submitBtn">Submit Feedback</button>
+
+                <div id="custom-area" class="hidden">
+                    <textarea id="custom_text" placeholder="Elaborate on your experience..." rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="cta-button">Confirm Submission</button>
             </form>
-            <span class="user-count" id="countDisplay">Connecting to Luncher...</span>
+            <span class="metrics" id="globalCounter">Syncing global data...</span>
         </div>
 
-        <div id="thank-you-page" class="hidden">
-            <span class="status-dot"></span>
-            <h1>Thank You</h1>
-            <p class="subtitle">Your feedback for Luncher has been recorded. You have already submitted your response from this device.</p>
-            <span class="user-count" id="finalCountDisplay"></span>
+        <div id="complete-view" class="hidden">
+            <div class="status-badge"></div>
+            <h1>Contribution Received</h1>
+            <p class="subtitle">Your perspective has been integrated into the Luncher roadmap. This device has already participated in this cycle.</p>
+            <span class="metrics" id="finalCounter"></span>
         </div>
     </div>
 
@@ -187,59 +218,68 @@
             measurementId: "G-7QR1GK35CD"
         };
 
-        // Init Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const formPage = document.getElementById('form-page');
-        const thankYouPage = document.getElementById('thank-you-page');
-        const countDisplay = document.getElementById('countDisplay');
-        const finalCountDisplay = document.getElementById('finalCountDisplay');
+        const formView = document.getElementById('form-view');
+        const completeView = document.getElementById('complete-view');
+        const customArea = document.getElementById('custom-area');
+        const counterEl = document.getElementById('globalCounter');
+        const finalCounterEl = document.getElementById('finalCounter');
 
-        // 1. REALTIME COUNTER: Listen for changes globally
-        const countRef = ref(db, 'stats/submitCount');
-        onValue(countRef, (snapshot) => {
-            const count = snapshot.val() || 0;
-            const text = `${count.toLocaleString()} users submitted`;
-            countDisplay.innerText = text;
-            finalCountDisplay.innerText = text;
+        // Toggle Custom Textarea
+        document.querySelectorAll('input[name="rating"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if(e.target.id === 'opt_custom') {
+                    customArea.classList.remove('hidden');
+                } else {
+                    customArea.classList.add('hidden');
+                }
+            });
         });
 
-        // 2. CHECK LOCAL DEVICE: Prevent resubmit
-        if (localStorage.getItem('luncher_voted') === 'true') {
-            showThankYou();
+        // Realtime Global Listener
+        const countRef = ref(db, 'stats/submitCount');
+        onValue(countRef, (snap) => {
+            const count = snap.val() || 0;
+            const msg = `${count.toLocaleString()} Contributions Logged`;
+            counterEl.innerText = msg;
+            finalCounterEl.innerText = msg;
+        });
+
+        // Persistent Device Lock
+        if (localStorage.getItem('luncher_auth_vote') === 'true') {
+            showSuccess();
         }
 
-        // 3. HANDLE SUBMISSION
-        document.getElementById('ratingForm').addEventListener('submit', async (e) => {
+        // Handle Submission
+        document.getElementById('insightForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const selected = document.querySelector('input[name="rating"]:checked').value;
-            
+            const rating = document.querySelector('input[name="rating"]:checked').value;
+            const customText = document.getElementById('custom_text').value;
+
             try {
-                // Save specific response to database
-                const newSubmissionRef = push(ref(db, 'submissions'));
-                await set(newSubmissionRef, {
-                    rating: selected,
+                // Record data
+                const subRef = push(ref(db, 'submissions'));
+                await set(subRef, {
+                    category: rating,
+                    feedback: rating === 'Custom' ? customText : 'N/A',
                     timestamp: Date.now()
                 });
 
-                // Atomic increment of the total count
-                await runTransaction(countRef, (currentCount) => {
-                    return (currentCount || 0) + 1;
-                });
+                // Atomic counter update
+                await runTransaction(countRef, (curr) => (curr || 0) + 1);
 
-                // Lock the device
-                localStorage.setItem('luncher_voted', 'true');
-                showThankYou();
-            } catch (error) {
-                console.error("Submission failed", error);
-                alert("Submission failed. Check your Firebase Rules.");
+                localStorage.setItem('luncher_auth_vote', 'true');
+                showSuccess();
+            } catch (err) {
+                console.error("Transmission error:", err);
             }
         });
 
-        function showThankYou() {
-            formPage.classList.add('hidden');
-            thankYouPage.classList.remove('hidden');
+        function showSuccess() {
+            formView.classList.add('hidden');
+            completeView.classList.remove('hidden');
         }
     </script>
 </body>
