@@ -2,56 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Your Answer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Luncher | Feedback</title>
     <style>
         :root {
             --bg: #ffffff;
             --text: #000000;
-            --gray: #f2f2f2;
-            --border: #e0e0e0;
+            --gray-light: #f9f9f9;
+            --border: #eeeeee;
+        }
+
+        /* Prevent all scrolling */
+        html, body {
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            position: fixed; /* Extra layer of scroll prevention */
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            touch-action: none; /* Prevents mobile pull-to-refresh and bounce */
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
         }
 
         .content-wrapper {
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             padding: 20px;
+            text-align: left;
         }
 
-        /* Visibility States */
-        .hidden { display: none; }
+        .hidden { display: none !important; }
 
         h1 {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
+            margin: 0 0 8px 0;
+            letter-spacing: -1.2px;
         }
 
         .subtitle {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 40px;
+            font-size: 16px;
+            color: #777;
+            margin-bottom: 32px;
         }
 
         /* Vertical Options */
         .options-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 32px;
+            gap: 10px;
+            margin-bottom: 24px;
         }
 
         .options-list input[type="radio"] {
@@ -60,20 +69,17 @@
 
         .options-list label {
             display: block;
-            padding: 20px;
+            padding: 18px;
             border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: 500;
+            border-radius: 2px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
         }
 
-        .options-list label:hover {
-            background-color: var(--gray);
-        }
-
-        /* Selected State - Pure Black & White */
+        /* Selected State */
         .options-list input[type="radio"]:checked + label {
             background-color: var(--text);
             color: var(--bg);
@@ -86,21 +92,39 @@
             background-color: var(--text);
             color: var(--bg);
             border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 800;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
-        /* Thank You Page Style */
-        #thank-you-page {
+        .user-count {
+            display: block;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #999;
             text-align: center;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
-        #thank-you-page .icon {
-            font-size: 48px;
+        /* Thank You Page */
+        #thank-you-page {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+            display: block;
             margin-bottom: 20px;
         }
     </style>
@@ -110,7 +134,7 @@
     <div class="content-wrapper">
         <div id="form-page">
             <h1>Submit Your Answer</h1>
-            <p class="subtitle">How would you rate the launcher app?</p>
+            <p class="subtitle">How would you rate the Luncher app?</p>
             
             <form id="ratingForm">
                 <div class="options-list">
@@ -131,12 +155,13 @@
                 </div>
                 <button type="submit" class="submit-btn">Submit Feedback</button>
             </form>
+            <span class="user-count" id="countDisplay">0 users submitted</span>
         </div>
 
         <div id="thank-you-page" class="hidden">
-            <div class="icon">✓</div>
+            <span class="status-dot"></span>
             <h1>Thank You</h1>
-            <p class="subtitle">Your feedback for the launcher app has been recorded. You have already submitted your response.</p>
+            <p class="subtitle">Your feedback for Luncher has been recorded. You cannot submit more than once from this device.</p>
         </div>
     </div>
 
@@ -144,20 +169,33 @@
         const formPage = document.getElementById('form-page');
         const thankYouPage = document.getElementById('thank-you-page');
         const ratingForm = document.getElementById('ratingForm');
+        const countDisplay = document.getElementById('countDisplay');
 
-        // 1. Check if user already submitted on page load
+        // Initial Mock Count (Simulating real users)
+        let baseCount = 1248; 
+
+        function updateCountUI() {
+            countDisplay.innerText = `${baseCount.toLocaleString()} users submitted`;
+        }
+
+        // 1. Check if user already submitted
         window.onload = () => {
-            if (localStorage.getItem('launcher_feedback_submitted') === 'true') {
+            updateCountUI();
+            if (localStorage.getItem('luncher_submitted') === 'true') {
                 showThankYou();
             }
         };
 
-        // 2. Handle Form Submission
+        // 2. Handle Submission
         ratingForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            // Save to localStorage (Device memory)
-            localStorage.setItem('launcher_feedback_submitted', 'true');
+            // Save to device
+            localStorage.setItem('luncher_submitted', 'true');
+            
+            // Increment local count for visual feedback
+            baseCount++;
+            updateCountUI();
             
             showThankYou();
         });
