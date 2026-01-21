@@ -3,261 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luncher | Evolutionary Feedback</title>
+    <title>Luncher | Collective Intelligence</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #000000;
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-hover: rgba(255, 255, 255, 0.08);
             --text-main: #ffffff;
-            --text-dim: #777777;
-            --accent: #ffffff;
-            --border: rgba(255, 255, 255, 0.1);
-            --radius: 24px;
-            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+            --text-dim: rgba(255, 255, 255, 0.5);
+            --error: #ff3b30;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            
+            /* Rainbow Button Colors */
+            --color-1: 0 100% 63%;
+            --color-2: 270 100% 60%;
+            --color-3: 210 100% 55%;
+            --color-4: 195 100% 50%;
+            --color-5: 90 100% 50%;
         }
 
-        /* Stability & Tap Suppression */
         html, body {
-            overflow: hidden;
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            background: var(--bg);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -webkit-tap-highlight-color: transparent; /* Removes blue highlight */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
+            overflow: hidden; height: 100%; width: 100%; margin: 0;
+            background: var(--bg); color: var(--text-main);
+            font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
+            display: flex; justify-content: center; align-items: center; position: fixed;
+            /* Global tap highlight removal */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Subtle Noise Grain Overlay */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://grains.imgix.net/noise.png');
-            opacity: 0.03;
-            pointer-events: none;
-            z-index: 1;
-        }
+        #shader-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
-        .main-stage {
-            z-index: 2;
-            width: 100%;
-            max-width: 400px;
-            padding: 32px;
-            box-sizing: border-box;
-            filter: blur(8px);
-            opacity: 0;
-            transform: translateY(10px);
-            animation: reveal 1s var(--ease-out) forwards;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        @keyframes reveal {
-            to { filter: blur(0); opacity: 1; transform: translateY(0); }
+        .container {
+            z-index: 10; width: 100%; max-width: 450px; padding: 40px;
+            box-sizing: border-box; text-align: left;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .hidden { display: none !important; }
+        .reveal { opacity: 0; transform: translateY(30px); filter: blur(20px); animation: qR 1.2s var(--ease) forwards; }
+        @keyframes qR { to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 
-        /* Typography */
-        h1 {
-            font-size: 48px;
-            font-weight: 900;
-            line-height: 0.85;
-            letter-spacing: -3px;
-            margin: 0 0 16px 0;
-            text-transform: lowercase;
-        }
+        h1 { font-size: clamp(40px, 10vw, 64px); font-weight: 900; letter-spacing: -4px; margin: 0; line-height: 0.85; text-transform: lowercase; }
+        .meta-text { font-size: 11px; font-weight: 700; letter-spacing: 5px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 24px; display: block; }
+        .desc { font-size: 18px; color: var(--text-dim); margin: 24px 0 48px 0; line-height: 1.4; }
 
-        .status-header {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .desc {
-            font-size: 16px;
-            color: var(--text-dim);
-            line-height: 1.5;
-            margin-bottom: 32 -px;
-            font-weight: 400;
-        }
-
-        /* Option Interactions */
-        .grid-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 24px 0;
-        }
-
-        .grid-options input { display: none; }
-
-        .grid-options label {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 22px 24px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.4s var(--ease-out);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .grid-options input:checked + label {
-            background: var(--text-main);
-            color: var(--bg);
-            transform: scale(1.02);
-        }
-
-        /* Custom Input Section */
-        #custom-panel {
-            margin-bottom: 24px;
-            animation: fadeIn 0.4s var(--ease-out);
-        }
-
+        #error-msg { color: var(--error); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; height: 14px; opacity: 0; transition: opacity 0.3s; }
+        
         textarea {
-            width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 20px;
-            border-radius: var(--radius);
-            font-family: inherit;
-            resize: none;
-            box-sizing: border-box;
-            outline: none;
-            font-size: 15px;
+            width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-main); font-family: inherit; font-size: 20px; padding: 12px 0; outline: none; transition: 0.8s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        textarea.invalid { border-color: var(--error); }
+
+        /* --- RAINBOW BUTTON SYSTEM --- */
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        /* Buttons */
-        .btn-main {
-            width: 100%;
-            padding: 24px;
-            background: var(--text-main);
-            color: var(--bg);
-            border: none;
-            border-radius: 60px;
-            font-size: 15px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .rainbow-button {
+            position: relative;
+            display: inline-flex;
+            height: 2.75rem;
             cursor: pointer;
-            transition: all 0.3s var(--ease-out);
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            border: 0;
+            padding: 0.5rem 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            transition: all 0.2s var(--ease);
             text-decoration: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-size: 200%;
+            animation: rainbow 3s linear infinite;
+            
+            /* Remove blue highlight */
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent;
+
+            background-image: 
+                linear-gradient(#121213, #121213), 
+                linear-gradient(#121213 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)), 
+                linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)));
+            background-clip: padding-box, border-box, border-box;
+            background-origin: border-box;
+            border: 2px solid transparent;
         }
 
-        .btn-main:active { transform: scale(0.96); }
-
-        /* Centered Thank You Content */
-        #thank-you-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            min-height: 300px; /* Ensures enough space for centering */
-            animation: fadeIn 0.6s var(--ease-out);
+        .rainbow-button::before {
+            content: "";
+            position: absolute;
+            bottom: -20%;
+            left: 50%;
+            z-index: -1;
+            height: 20%;
+            width: 60%;
+            transform: translateX(-50%);
+            animation: rainbow 3s linear infinite;
+            background: linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)));
+            background-size: 200%;
+            filter: blur(0.8rem);
         }
 
-        .thank-you-badge {
-            font-size: 64px;
-            margin-bottom: 24px;
-            font-weight: 900;
+        /* Physical click feel without the blue highlight */
+        .rainbow-button:active { 
+            transform: scale(0.96) translateY(1px); 
+            filter: brightness(0.9);
+        }
+        
+        .rainbow-button:focus {
+            outline: none;
         }
 
-        /* Real-time Indicator */
-        .live-sync {
-            margin-top: 32px;
-            font-size: 10px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .pulse {
-            height: 6px; width: 6px;
-            background: #fff;
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
+        .counter-grid { margin-top: 64px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .live-label { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="main-stage">
-        <div id="form-content">
-            <div class="status-header">
-                <span class="pulse"></span> Node Active
-            </div>
-            <h1>Luncher.</h1>
-            <p class="desc">Define the next phase of our trajectory. How has your interaction with the interface evolved?</p>
+    <canvas id="shader-canvas"></canvas>
+
+    <div class="container reveal">
+        <div id="view-form">
+            <span class="meta-text">System / Luncher</span>
+            <h1>Evolve.</h1>
+            <p class="desc">Rate the app in < 10s. This helps us deploy the future you want.</p>
             
-            <form id="feedbackForm">
-                <div class="grid-options">
-                    <input type="radio" id="r1" name="v" value="Elite" required>
-                    <label for="r1">Elite <span>→</span></label>
-
-                    <input type="radio" id="r2" name="v" value="Fluid">
-                    <label for="r2">Fluid <span>→</span></label>
-
-                    <input type="radio" id="r3" name="v" value="Static">
-                    <label for="r3">Static <span>→</span></label>
-
-                    <input type="radio" id="r_custom" name="v" value="Custom">
-                    <label for="r_custom">Custom Insight <span>+</span></label>
+            <form id="ultraForm" novalidate>
+                <div id="error-msg">Input required for transmission</div>
+                <div style="margin-bottom: 32px;">
+                    <textarea id="feedback_msg" placeholder="What should we build next?" rows="2"></textarea>
                 </div>
 
-                <div id="custom-panel" class="hidden">
-                    <textarea id="custom_val" placeholder="Document your perspective..." rows="3"></textarea>
-                </div>
-
-                <button type="submit" class="btn-main">Authorize Submission</button>
+                <button type="submit" class="rainbow-button">
+                    Transmit →
+                </button>
             </form>
 
-            <div class="live-sync" id="global-counter">Synchronizing Neural Link...</div>
+            <div class="counter-grid">
+                <span class="live-label">Global Nodes</span>
+                <span id="node-count" style="font-size: 14px; font-weight: 700;">Syncing...</span>
+            </div>
         </div>
 
-        <div id="thank-you-content" class="hidden">
-            <div class="thank-you-badge">✦</div>
-            <h1>Confirmed.</h1>
-            <p class="desc" style="margin-bottom: 40px;">Your contribution has been archived. This terminal's trajectory is now logged.</p>
+        <div id="view-thanks" class="hidden" style="text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 32px;">✦</div>
+            <h1>Archived.</h1>
+            <p class="desc">Your insight has been integrated into the Luncher roadmap.</p>
             
-            <a href="https://play.google.com/store/apps/details?id=com.uaebazzar.luncher" class="btn-main">Download Luncher</a>
-            
-            <div class="live-sync" id="final-counter"></div>
+            <a href="https://play.google.com/store/apps/details?id=com.uaebazzar.luncher" class="rainbow-button">
+                Download App
+            </a>
+
+            <div class="counter-grid" style="margin-top: 80px;">
+                <span class="live-label">Global Node Count</span>
+                <span id="final-node-count" style="font-size: 14px; font-weight: 700;">0</span>
+            </div>
         </div>
     </div>
+
+    <script>
+        const canvas = document.getElementById('shader-canvas');
+        const gl = canvas.getContext('webgl');
+        let mouse = { x: 0.5, y: 0.5 };
+
+        const vs = `attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }`;
+        const fs = `
+            precision mediump float;
+            uniform vec2 r; uniform float t; uniform vec2 m;
+            vec3 pal(float t) { return 0.5 + 0.5*cos(6.28318*(vec3(1,1,1)*t+vec3(0.26,0.41,0.55))); }
+            void main() {
+                vec2 uv = gl_FragCoord.xy/r.xy; vec2 uv0 = uv;
+                uv = uv*2.0-1.0; uv.x *= r.x/r.y;
+                vec3 col = vec3(0);
+                for(float i=0.0; i<4.0; i++) {
+                    uv = fract(uv*1.5)-0.5;
+                    float d = length(uv)*exp(-length(uv0));
+                    vec3 c = pal(length(uv0)+i*0.4+t*0.01);
+                    d = sin(d*4.0+t)/36.0;
+                    d = pow(0.005/d, 1.2);
+                    col += c * d;
+                }
+                gl_FragColor = vec4(col*mix(vec3(0.1,0.2,0.5), vec3(0.9,0.1,0.4), uv0.y), 1.0);
+            }
+        `;
+
+        const prog = gl.createProgram();
+        const addS = (type, src) => {
+            const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); gl.attachShader(prog, s);
+        };
+        addS(gl.VERTEX_SHADER, vs); addS(gl.FRAGMENT_SHADER, fs); gl.linkProgram(prog);
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+        const pL = gl.getAttribLocation(prog, "p");
+        gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL, 2, gl.FLOAT, false, 0, 0);
+
+        function render(time) {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight; gl.viewport(0,0,canvas.width,canvas.height);
+            gl.useProgram(prog);
+            gl.uniform2f(gl.getUniformLocation(prog, "r"), canvas.width, canvas.height);
+            gl.uniform1f(gl.getUniformLocation(prog, "t"), time*0.001);
+            gl.uniform2f(gl.getUniformLocation(prog, "m"), mouse.x, mouse.y);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); requestAnimationFrame(render);
+        }
+        window.onmousemove = e => { mouse.x = e.clientX/innerWidth; mouse.y = 1-e.clientY/innerHeight; };
+        render(0);
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -276,61 +231,36 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const feedbackInput = document.getElementById('feedback_msg');
+        const errorMsg = document.getElementById('error-msg');
 
-        const formUI = document.getElementById('form-content');
-        const thanksUI = document.getElementById('thank-you-content');
-        const countUI = document.getElementById('global-counter');
-        const finalUI = document.getElementById('final-counter');
-        const customPanel = document.getElementById('custom-panel');
-
-        // Logic: Custom View Toggle
-        document.querySelectorAll('input[name="v"]').forEach(el => {
-            el.addEventListener('change', (e) => {
-                if(e.target.id === 'r_custom') customPanel.classList.remove('hidden');
-                else customPanel.classList.add('hidden');
-            });
+        onValue(ref(db, 'stats/submitCount'), (snap) => {
+            const c = snap.val() || 0;
+            document.getElementById('node-count').innerText = c.toLocaleString();
+            document.getElementById('final-node-count').innerText = c.toLocaleString();
         });
 
-        // Firebase: Global Count Update
-        const statsRef = ref(db, 'stats/submitCount');
-        onValue(statsRef, (snap) => {
-            const count = snap.val() || 0;
-            const text = `${count.toLocaleString()} Signals Recorded`;
-            countUI.innerText = text;
-            finalUI.innerText = text;
-        });
+        if (localStorage.getItem('luncher_core_v3')) showSuccess();
 
-        // Persist: Submission Lock
-        if (localStorage.getItem('luncher_secure_v2')) {
-            showFinal();
-        }
-
-        // Logic: Transmit Data
-        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+        document.getElementById('ultraForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const rating = document.querySelector('input[name="v"]:checked').value;
-            const detail = document.getElementById('custom_val').value;
-
-            try {
-                const subRef = push(ref(db, 'submissions'));
-                await set(subRef, {
-                    category: rating,
-                    feedback: rating === 'Custom' ? detail : 'None',
-                    timestamp: Date.now()
-                });
-
-                await runTransaction(statsRef, (count) => (count || 0) + 1);
-
-                localStorage.setItem('luncher_secure_v2', 'true');
-                showFinal();
-            } catch (err) {
-                console.error("Link severed:", err);
+            const val = feedbackInput.value.trim();
+            if (!val) {
+                errorMsg.style.opacity = "1"; feedbackInput.classList.add('invalid');
+                setTimeout(() => { errorMsg.style.opacity = "0"; feedbackInput.classList.remove('invalid'); }, 3000);
+                return;
             }
+            try {
+                await set(push(ref(db, 'submissions')), { message: val, timestamp: Date.now() });
+                await runTransaction(ref(db, 'stats/submitCount'), (c) => (c || 0) + 1);
+                localStorage.setItem('luncher_core_v3', 'true');
+                showSuccess();
+            } catch (err) { console.error(err); }
         });
 
-        function showFinal() {
-            formUI.classList.add('hidden');
-            thanksUI.classList.remove('hidden');
+        function showSuccess() {
+            document.getElementById('view-form').classList.add('hidden');
+            document.getElementById('view-thanks').classList.remove('hidden');
         }
     </script>
 </body>
