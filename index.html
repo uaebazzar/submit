@@ -9,7 +9,8 @@
             --bg: #ffffff;
             --text: #000000;
             --gray-light: #f9f9f9;
-            --border: #eeeeee;
+            --border: #e0e0e0;
+            --radius: 16px; /* Modern rounded corners */
         }
 
         /* Prevent all scrolling */
@@ -19,12 +20,12 @@
             width: 100%;
             margin: 0;
             padding: 0;
-            position: fixed; /* Extra layer of scroll prevention */
+            position: fixed;
             background-color: var(--bg);
             color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
-            touch-action: none; /* Prevents mobile pull-to-refresh and bounce */
+            touch-action: none;
         }
 
         body {
@@ -36,14 +37,13 @@
         .content-wrapper {
             width: 100%;
             max-width: 360px;
-            padding: 20px;
-            text-align: left;
+            padding: 24px;
         }
 
         .hidden { display: none !important; }
 
         h1 {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 800;
             margin: 0 0 8px 0;
             letter-spacing: -1.2px;
@@ -51,15 +51,16 @@
 
         .subtitle {
             font-size: 16px;
-            color: #777;
+            color: #666;
             margin-bottom: 32px;
+            line-height: 1.4;
         }
 
-        /* Vertical Options */
+        /* Rounded Vertical Options */
         .options-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 24px;
         }
 
@@ -69,14 +70,14 @@
 
         .options-list label {
             display: block;
-            padding: 18px;
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            font-size: 15px;
+            padding: 20px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.1s ease;
-            text-transform: uppercase;
+            transition: all 0.2s ease;
+            text-align: center;
         }
 
         /* Selected State */
@@ -92,40 +93,45 @@
             background-color: var(--text);
             color: var(--bg);
             border: none;
-            font-size: 14px;
-            font-weight: 800;
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
+            transition: transform 0.1s active;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
         }
 
         .user-count {
             display: block;
-            margin-top: 16px;
-            font-size: 12px;
-            color: #999;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #888;
             text-align: center;
             font-weight: 500;
-            letter-spacing: 0.5px;
         }
 
         /* Thank You Page */
-        #thank-you-page {
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 12px;
+            height: 12px;
             background: #000;
             border-radius: 50%;
             display: block;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+        }
+        
+        #thank-you-page {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -153,51 +159,82 @@
                     <input type="radio" id="bad" name="rating" value="Bad">
                     <label for="bad">Bad</label>
                 </div>
-                <button type="submit" class="submit-btn">Submit Feedback</button>
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Feedback</button>
             </form>
-            <span class="user-count" id="countDisplay">0 users submitted</span>
+            <span class="user-count" id="countDisplay">Connecting to Luncher...</span>
         </div>
 
         <div id="thank-you-page" class="hidden">
             <span class="status-dot"></span>
             <h1>Thank You</h1>
-            <p class="subtitle">Your feedback for Luncher has been recorded. You cannot submit more than once from this device.</p>
+            <p class="subtitle">Your feedback for Luncher has been recorded. You have already submitted your response from this device.</p>
+            <span class="user-count" id="finalCountDisplay"></span>
         </div>
     </div>
 
-    <script>
-        const formPage = document.getElementById('form-page');
-        const thankYouPage = document.getElementById('thank-you-page');
-        const ratingForm = document.getElementById('ratingForm');
-        const countDisplay = document.getElementById('countDisplay');
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, runTransaction, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Initial Mock Count (Simulating real users)
-        let baseCount = 1248; 
-
-        function updateCountUI() {
-            countDisplay.innerText = `${baseCount.toLocaleString()} users submitted`;
-        }
-
-        // 1. Check if user already submitted
-        window.onload = () => {
-            updateCountUI();
-            if (localStorage.getItem('luncher_submitted') === 'true') {
-                showThankYou();
-            }
+        const firebaseConfig = {
+            apiKey: "AIzaSyCpJpI-WmQ9Ag4UVbB5qvkVb87YZdJGIkM",
+            authDomain: "submit-e377f.firebaseapp.com",
+            databaseURL: "https://submit-e377f-default-rtdb.firebaseio.com",
+            projectId: "submit-e377f",
+            storageBucket: "submit-e377f.firebasestorage.app",
+            messagingSenderId: "297455477288",
+            appId: "1:297455477288:web:3e23c36cc4f465c233cb1d",
+            measurementId: "G-7QR1GK35CD"
         };
 
-        // 2. Handle Submission
-        ratingForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Save to device
-            localStorage.setItem('luncher_submitted', 'true');
-            
-            // Increment local count for visual feedback
-            baseCount++;
-            updateCountUI();
-            
+        // Init Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const formPage = document.getElementById('form-page');
+        const thankYouPage = document.getElementById('thank-you-page');
+        const countDisplay = document.getElementById('countDisplay');
+        const finalCountDisplay = document.getElementById('finalCountDisplay');
+
+        // 1. REALTIME COUNTER: Listen for changes globally
+        const countRef = ref(db, 'stats/submitCount');
+        onValue(countRef, (snapshot) => {
+            const count = snapshot.val() || 0;
+            const text = `${count.toLocaleString()} users submitted`;
+            countDisplay.innerText = text;
+            finalCountDisplay.innerText = text;
+        });
+
+        // 2. CHECK LOCAL DEVICE: Prevent resubmit
+        if (localStorage.getItem('luncher_voted') === 'true') {
             showThankYou();
+        }
+
+        // 3. HANDLE SUBMISSION
+        document.getElementById('ratingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const selected = document.querySelector('input[name="rating"]:checked').value;
+            
+            try {
+                // Save specific response to database
+                const newSubmissionRef = push(ref(db, 'submissions'));
+                await set(newSubmissionRef, {
+                    rating: selected,
+                    timestamp: Date.now()
+                });
+
+                // Atomic increment of the total count
+                await runTransaction(countRef, (currentCount) => {
+                    return (currentCount || 0) + 1;
+                });
+
+                // Lock the device
+                localStorage.setItem('luncher_voted', 'true');
+                showThankYou();
+            } catch (error) {
+                console.error("Submission failed", error);
+                alert("Submission failed. Check your Firebase Rules.");
+            }
         });
 
         function showThankYou() {
@@ -205,6 +242,5 @@
             thankYouPage.classList.remove('hidden');
         }
     </script>
-
 </body>
 </html>
